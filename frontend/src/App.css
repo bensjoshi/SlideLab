@@ -1,0 +1,169 @@
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-family: 'Zilla Slab', Georgia, serif;
+  font-size: 2.1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--brass);
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--ink-dim);
+  font-size: 1rem;
+}
+
+.upload-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.file-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 4px;
+  padding: 14px 16px;
+  cursor: pointer;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease;
+}
+
+.file-label:hover {
+  border-color: var(--brass);
+  color: var(--ink);
+}
+
+.file-label input {
+  display: none;
+}
+
+.player {
+  width: 100%;
+  height: 36px;
+}
+
+.transcribe-btn {
+  align-self: flex-start;
+  background: var(--brass);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  padding: 11px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.transcribe-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.transcribe-btn:not(:disabled):hover {
+  opacity: 0.88;
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.hint {
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.hint code {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 0.8rem;
+}
+
+.results {
+  margin-top: 40px;
+}
+
+.results h2 {
+  font-family: 'Zilla Slab', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0 0 20px;
+  color: var(--ink);
+}
+
+.piano-roll {
+  position: relative;
+  height: 160px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.note-bar {
+  position: absolute;
+  height: 18px;
+  background: var(--brass);
+  color: var(--bg);
+  border-radius: 2px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.notes-table th {
+  text-align: left;
+  color: var(--ink-faint);
+  font-weight: 500;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.notes-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-dim);
+}
+
+.footer {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
