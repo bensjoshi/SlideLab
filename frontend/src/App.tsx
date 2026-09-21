@@ -57,7 +57,7 @@ function App() {
     <div className="app">
       <header className="header">
         <h1>🎺 Trombone Transcription Platform</h1>
-        <p className="subtitle">MVP &mdash; audio to notes</p>
+        <p className="subtitle">audio to notes</p>
       </header>
 
       <section className="upload-card">
@@ -133,8 +133,8 @@ function App() {
       )}
 
       <footer className="footer">
-        Phase 1 (MVP) &mdash; pitch detection uses a simple autocorrelation algorithm. Phase 2
-        swaps this for a real transcription engine.
+        Pitch detection uses the YIN algorithm. Notes are grouped from raw pitch frames &mdash;
+        rhythm quantisation and MusicXML export come in a later phase.
       </footer>
     </div>
   )

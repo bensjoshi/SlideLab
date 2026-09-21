@@ -1,24 +1,33 @@
-# Trombone Transcription Platform — MVP
+# Trombone Transcription Platform
 
-From audio to sheet music, built for trombone. This is **Phase 1** of the
-roadmap: a working end-to-end skeleton (upload audio → get notes) that
-proves the pipeline before investing in a real transcription engine.
+From audio to sheet music, built for trombone. This covers **Phase 1**
+(MVP web app) and **Phase 2** (real transcription engine) of the
+roadmap.
 
 ## What's actually here
 
-- **`backend/`** — a FastAPI server with one real endpoint,
-  `POST /api/transcribe`. It reads a WAV file, runs a simple
-  autocorrelation pitch detector (`pitch.py`), and groups the pitch track
-  into discrete notes (`notes.py`).
-- **`frontend/`** — a React + TypeScript (Vite) app: upload a recording,
+- **`backend/server.py`** — FastAPI server with one real endpoint,
+  `POST /api/transcribe`.
+- **`backend/transcription/`** — the actual transcription engine:
+  - `audio.py` — WAV loading + preprocessing (DC offset removal, peak
+    normalization, silence trimming)
+  - `pitch.py` — pitch detection using the **YIN algorithm** (handles
+    octave errors and imperfect tone much better than basic
+    autocorrelation, no ML dependencies needed)
+  - `notes.py` — groups the frame-by-frame pitch track into discrete
+    notes
+  - `cli.py` — run the whole pipeline from the command line, no server
+    needed
+- **`frontend/`** — React + TypeScript (Vite) app: upload a recording,
   hear it back, hit Transcribe, see the note sequence as a table and a
   simple piano-roll bar chart.
 
-The pitch detection is deliberately simple — no ML dependencies, so
-there's nothing to fight with getting it running. Roadmap Phase 2
-("Real Transcription Engine") is where this gets swapped for something
-more robust, and Phase 5 adds trombone-specific handling (glissando,
-range checks, etc).
+Why YIN and not CREPE (which the roadmap mentions as an example)? YIN
+needs only numpy — nothing new to install — and is a well-established,
+accurate algorithm in its own right. CREPE needs PyTorch/TensorFlow,
+which is a much heavier install and worth reaching for once you have a
+real dataset (Phase 3) to actually measure whether it improves
+accuracy enough to justify the extra weight.
 
 ## Get it running
 
@@ -26,8 +35,9 @@ range checks, etc).
 
 ```bash
 cd backend
-python -m venv venv && source venv/bin/activate   # optional but recommended
-pip install -r requirements.txt
+python -m venv venv
+source venv/bin/activate          # Windows: .\venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 python server.py
 ```
 
@@ -38,13 +48,23 @@ curl http://localhost:8000/api/health
 ```
 
 Don't have a trombone recording on hand yet? Generate a synthetic test
-tone so you can exercise the whole pipeline:
+tone:
 
 ```bash
 python generate_test_wav.py test.wav
 ```
 
-### 2. Frontend
+### 2. Try it from the command line (no server needed)
+
+```bash
+python -m transcription.cli test.wav
+python -m transcription.cli test.wav --json out.json   # also save as JSON
+```
+
+This is the fastest way to check the pipeline is working, and useful
+later for batch-testing against your golden dataset (Phase 3).
+
+### 3. Frontend
 
 In a second terminal:
 
@@ -54,51 +74,46 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. The dev server proxies `/api/*` requests to
-the backend on port 8000, so no CORS setup is needed locally.
+Open `http://localhost:5173`. The dev server proxies `/api/*` requests
+to the backend on port 8000, so no CORS setup is needed locally.
 
-### 3. Test the demo transcription
-
-Upload `test.wav` (or a real recording) in the browser and click
-**Transcribe**. You should see a handful of detected notes with their
-start time, duration, and confidence.
+Upload `test.wav` (or a real recording) and click **Transcribe**.
 
 ## Key files to explore
 
 ```
 backend/
-  server.py       FastAPI app + /api/transcribe endpoint
-  pitch.py         Autocorrelation pitch detection
-  notes.py          Groups pitch frames into notes
-  models.py          Shared Pydantic response models
-  generate_test_wav.py  Makes a synthetic test recording
+  server.py                 FastAPI app + /api/transcribe endpoint
+  requirements.txt
+  generate_test_wav.py        Makes a synthetic test recording
+  transcription/
+    audio.py                    WAV loading + preprocessing
+    pitch.py                     YIN pitch detection
+    notes.py                      Groups pitch frames into notes
+    models.py                      Shared Pydantic response models
+    cli.py                          Standalone command-line runner
 
 frontend/
-  src/App.tsx     Upload UI, results table, piano-roll view
-  src/App.css      Styling
-  vite.config.ts    Dev proxy to the backend
+  src/App.tsx                 Upload UI, results table, piano-roll view
+  src/App.css                  Styling
+  vite.config.ts                 Dev proxy to the backend
 ```
 
 ## Known limitations (by design, for now)
 
 - Only accepts `.wav` (mono or stereo, 8- or 16-bit PCM). Convert other
   formats with `ffmpeg` before uploading.
-- Pitch detection is monophonic autocorrelation — good for a single
-  trombone line, not accurate on chords, noisy recordings, or fast
-  passages. This is intentional: MVP scope is to prove the pipeline
-  works, not to nail accuracy yet.
-- No persistence — nothing is saved between requests. Storage
-  (PostgreSQL + object storage) comes in as part of the SaaS phase.
-- No auth, rate limits, or deployment config yet — that's Phase 8.
+- Pitch detection is monophonic — good for a single trombone line, not
+  chords. YIN is meaningfully more accurate than plain autocorrelation
+  but still isn't ML-model accuracy.
+- No rhythm quantisation or MusicXML/PDF export yet — that's Phase 4.
+- No persistence, auth, or deployment config yet — later SaaS phases.
 
 ## Next steps
 
-Once this is running and you understand the codebase, the natural
-next moves (per the roadmap) are:
-
 1. Record 20–50 short trombone examples and hand-transcribe them —
-   that becomes your golden dataset (Phase 3).
-2. Replace `pitch.py`'s autocorrelation with a real pitch-tracking
-   model and measure accuracy against that dataset (Phase 2).
-3. Add rhythm quantisation and Music21/MusicXML export so output can
-   open in notation software (Phase 4).
+   your golden dataset (Phase 3). Use `transcription/cli.py` to batch-run
+   the pipeline against them and see where it's actually wrong.
+2. Add rhythm quantisation and Music21/MusicXML export (Phase 4).
+3. Add trombone-specific handling: range filtering, glissando
+   detection, vibrato (Phase 5).
